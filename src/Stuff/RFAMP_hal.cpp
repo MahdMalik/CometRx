@@ -2,7 +2,7 @@
 
 #include "RFAMP_hal.h"
 #include "logging.h"
-#include <elrs/src/include/target/Unified_ESP_RX.h>
+#include "Unified_ESP_RX.h"
 
 RFAMP_hal *RFAMP_hal::instance = NULL;
 

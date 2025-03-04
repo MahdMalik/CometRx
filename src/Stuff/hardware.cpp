@@ -189,7 +189,7 @@ static void hardware_ClearAllFields()
 static void hardware_LoadFieldsFromDoc(JsonDocument &doc)
 {
     for (size_t i=0 ; i<ARRAY_SIZE(fields) ; i++) {
-        if (doc.containsKey(fields[i].name)) {
+        if (doc[fields[i].name].is<JsonObject>()) {
             switch (fields[i].type) {
                 case INT:
                     hardware[fields[i].position].int_value = doc[fields[i].name];

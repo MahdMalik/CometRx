@@ -21,7 +21,7 @@ Heavily modified/simplified by Alessandro Carcione 2020 for ELRS project
 #include "SX1280_Regs.h"
 #include "SX1280.h"
 #include "SX12xxDriverCommon.h"
-#include <elrs/src/include/target/Unified_ESP_RX.h>
+#include "Unified_ESP_RX.h"
 
 enum SX1280_BusyState_
 {

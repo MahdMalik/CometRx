@@ -1,6 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include "Arduino.h"
+
 #include "VA_OPT.h"
 
 /**
@@ -15,11 +17,16 @@
  **/
 
 // DEBUG_LOG_VERBOSE and DEBUG_RX_SCOREBOARD implies DEBUG_LOG
+
+#define DEBUG_LOG_VERBOSE
+
 #if !defined(DEBUG_LOG)
   #if defined(DEBUG_LOG_VERBOSE) || (defined(DEBUG_RX_SCOREBOARD) && TARGET_RX) || defined(DEBUG_INIT)
     #define DEBUG_LOG
   #endif
 #endif
+
+#define TARGET_RX
 
 #if defined(TARGET_RX) && (defined(DEBUG_RCVR_LINKSTATS) || defined(DEBUG_RX_SCOREBOARD) || defined(DEBUG_RCVR_SIGNAL_STATS)) || defined(DEBUG_LOG)
 #define DEBUG_ENABLED

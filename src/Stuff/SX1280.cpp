@@ -151,37 +151,36 @@ void SX1280Driver::Config(uint8_t bw, uint8_t sf, uint8_t cr, uint32_t regfreq,
                           uint8_t PreambleLength, bool InvertIQ, uint8_t _PayloadLength, uint32_t interval,
                           uint32_t flrcSyncWord, uint16_t flrcCrcSeed, uint8_t flrc)
 {
-    // uint8_t const mode = (flrc) ? SX1280_PACKET_TYPE_FLRC : SX1280_PACKET_TYPE_LORA;
+    uint8_t const mode = (flrc) ? SX1280_PACKET_TYPE_FLRC : SX1280_PACKET_TYPE_LORA;
 
-    // PayloadLength = _PayloadLength;
-    // IQinverted = InvertIQ;
-    // packet_mode = mode;
-    // SetMode(SX1280_MODE_STDBY_RC, SX12XX_Radio_All);
-    // hal.WriteCommand(SX1280_RADIO_SET_PACKETTYPE, mode, SX12XX_Radio_All, 20);
-    // if (mode == SX1280_PACKET_TYPE_FLRC)
-    // {
-    //     Serial.println("Config FLRC");
-    //     ConfigModParamsFLRC(bw, cr, sf);
-    //     SetPacketParamsFLRC(SX1280_FLRC_PACKET_FIXED_LENGTH, PreambleLength, _PayloadLength, flrcSyncWord, flrcCrcSeed, cr);
-    // }
-    // else
-    // {
-    //     Serial.println("Config LoRa");
-    //     ConfigModParamsLoRa(bw, sf, cr);
-    // #if defined(DEBUG_FREQ_CORRECTION)
-    //     SX1280_RadioLoRaPacketLengthsModes_t packetLengthType = SX1280_LORA_PACKET_VARIABLE_LENGTH;
-    // #else
-    //     SX1280_RadioLoRaPacketLengthsModes_t packetLengthType = SX1280_LORA_PACKET_FIXED_LENGTH;
-    // #endif
-    //     SetPacketParamsLoRa(PreambleLength, packetLengthType, _PayloadLength, InvertIQ);
-    // }
+    PayloadLength = _PayloadLength;
+    IQinverted = InvertIQ;
+    packet_mode = mode;
+    SetMode(SX1280_MODE_STDBY_RC, SX12XX_Radio_All);
+    hal.WriteCommand(SX1280_RADIO_SET_PACKETTYPE, mode, SX12XX_Radio_All, 20);
+    if (mode == SX1280_PACKET_TYPE_FLRC)
+    {
+        Serial.println("Config FLRC");
+        ConfigModParamsFLRC(bw, cr, sf);
+        SetPacketParamsFLRC(SX1280_FLRC_PACKET_FIXED_LENGTH, PreambleLength, _PayloadLength, flrcSyncWord, flrcCrcSeed, cr);
+    }
+    else
+    {
+        Serial.println("Config LoRa");
+        ConfigModParamsLoRa(bw, sf, cr);
+    #if defined(DEBUG_FREQ_CORRECTION)
+        SX1280_RadioLoRaPacketLengthsModes_t packetLengthType = SX1280_LORA_PACKET_VARIABLE_LENGTH;
+    #else
+        SX1280_RadioLoRaPacketLengthsModes_t packetLengthType = SX1280_LORA_PACKET_FIXED_LENGTH;
+    #endif
+        SetPacketParamsLoRa(PreambleLength, packetLengthType, _PayloadLength, InvertIQ);
+    }
 
-    // SetFrequencyReg(regfreq);
-    // SetRxTimeoutUs(interval);
-    // uint16_t dio1Mask = SX1280_IRQ_TX_DONE | SX1280_IRQ_RX_DONE;
-    // uint16_t irqMask  = SX1280_IRQ_TX_DONE | SX1280_IRQ_RX_DONE | SX1280_IRQ_SYNCWORD_VALID | SX1280_IRQ_SYNCWORD_ERROR | SX1280_IRQ_CRC_ERROR;
-    // SetDioIrqParams(irqMask, dio1Mask);
-    Serial.println("made it to the end");
+    SetFrequencyReg(regfreq);
+    SetRxTimeoutUs(interval);
+    uint16_t dio1Mask = SX1280_IRQ_TX_DONE | SX1280_IRQ_RX_DONE;
+    uint16_t irqMask  = SX1280_IRQ_TX_DONE | SX1280_IRQ_RX_DONE | SX1280_IRQ_SYNCWORD_VALID | SX1280_IRQ_SYNCWORD_ERROR | SX1280_IRQ_CRC_ERROR;
+    SetDioIrqParams(irqMask, dio1Mask);
 }
 
 void SX1280Driver::SetRxTimeoutUs(uint32_t interval)
