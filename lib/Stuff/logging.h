@@ -1,9 +1,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "Arduino.h"
-
 #include "VA_OPT.h"
+#include "Stream.h"
 
 /**
  * Debug logging macros. Define DEBUG_LOG or DEBUG_LOG_VERBOSE to enable logging,
@@ -18,7 +17,7 @@
 
 // DEBUG_LOG_VERBOSE and DEBUG_RX_SCOREBOARD implies DEBUG_LOG
 
-#define DEBUG_LOG_VERBOSE
+// #define DEBUG_LOG_VERBOSE
 
 #if !defined(DEBUG_LOG)
   #if defined(DEBUG_LOG_VERBOSE) || (defined(DEBUG_RX_SCOREBOARD) && TARGET_RX) || defined(DEBUG_INIT)

@@ -1,5 +1,5 @@
 #include "SPIEx.h"
-
+#define PLATFORM_ESP32
 #if defined(PLATFORM_ESP32)
 #include <soc/spi_struct.h>
 #endif

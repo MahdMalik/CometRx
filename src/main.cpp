@@ -44,9 +44,10 @@ void setup() {
   }
 
   bufferAddr = theDriver->GetRxBufferAddr(SX12XX_Radio_All);
-  char* str = (char*)malloc(sizeof(char) * strlen("LOCATION OF BUFFER: ") + sizeof(uint8_t));
+  char* str = (char*)malloc(sizeof(char) * strlen("LOCATION OF BUFFER: ") + sizeof(uint8_t) + 10);
   sprintf(str, "LOCATION OF BUFFER: %d", bufferAddr);
   Serial.println(str);
+  free(str);
 }
 
 void loop() {

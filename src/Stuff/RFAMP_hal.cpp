@@ -3,6 +3,7 @@
 #include "RFAMP_hal.h"
 #include "logging.h"
 #include "Unified_ESP_RX.h"
+#define PLATFORM_ESP32
 
 RFAMP_hal *RFAMP_hal::instance = NULL;
 

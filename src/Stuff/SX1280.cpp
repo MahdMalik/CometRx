@@ -80,17 +80,29 @@ bool SX1280Driver::Begin(uint32_t minimumFrequency, uint32_t maximumFrequency)
     hal.IsrCallback_2 = &SX1280Driver::IsrCallback_2;
 
     hal.reset();
-    DBGLN("SX1280 Begin");
+    Serial.println("SX1280 Begin");
 
     RFAMP.init();
 
     SetMode(SX1280_MODE_STDBY_RC, SX12XX_Radio_All); // Put in STDBY_RC mode.  Must be SX1280_MODE_STDBY_RC for SX1280_RADIO_SET_REGULATORMODE to be set.
 
+    hal.WriteRegister(0xFF00, 32, SX12XX_Radio_1);
+    uint16_t testRead = hal.ReadRegister(0xFF00, SX12XX_Radio_1);
+    char* thingToPrint = (char*) malloc(strlen("Read vers sx1280 #1: ") * sizeof(char) + sizeof(uint16_t));
+    sprintf(thingToPrint, "Test read: %d", testRead);
+    Serial.println(thingToPrint);
+    free(thingToPrint);
+
     uint16_t firmwareRev = (((hal.ReadRegister(REG_LR_FIRMWARE_VERSION_MSB, SX12XX_Radio_1)) << 8) | (hal.ReadRegister(REG_LR_FIRMWARE_VERSION_MSB + 1, SX12XX_Radio_1)));
-    DBGLN("Read Vers sx1280 #1: %d", firmwareRev);
+    
+    thingToPrint = (char*) malloc(strlen("Read vers sx1280 #1: ") * sizeof(char) + sizeof(uint16_t) + 10);
+    sprintf(thingToPrint, "Read Vers sx1280 #1: %d", firmwareRev);
+    Serial.println(thingToPrint);
+    free(thingToPrint);
     if ((firmwareRev == 0) || (firmwareRev == 65535))
     {
         // SPI communication failed, just return without configuration
+        Serial.println("SPI communciation failed!");
         return false;
     }
 
@@ -573,8 +585,8 @@ uint8_t ICACHE_RAM_ATTR SX1280Driver::GetRxBufferAddr(SX12XX_Radio_Number_t radi
 {
     WORD_ALIGNED_ATTR uint8_t status[2] = {0};
     hal.ReadCommand(SX1280_RADIO_GET_RXBUFFERSTATUS, status, 2, radioNumber);
-    return 50;
-    // return status[1];
+    // return 50;
+    return status[1];
 }
 
 void ICACHE_RAM_ATTR SX1280Driver::GetStatus(SX12XX_Radio_Number_t radioNumber)

@@ -1,6 +1,9 @@
 #include "targets.h"
 #include <cstdarg>
 #include "logging.h"
+#include "Stream.h"
+
+#define PLATFORM_ESP32
 
 #ifdef LOG_USE_PROGMEM
   #define GETCHAR pgm_read_byte(fmt)
