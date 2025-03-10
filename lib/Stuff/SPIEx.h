@@ -1,8 +1,6 @@
 #include "targets.h"
 #include <SPI.h>
 
-#define PLATFORM_ESP32
-
 /**
  * @brief An extension to the platform SPI class that provides some performance enhancements.
  *

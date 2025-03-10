@@ -50,8 +50,8 @@ void setup() {
   free(str);
 }
 
-void loop() {
-  
+void loop() 
+{  
   Serial.println("RX: Beginning to receive data:");
   digitalWrite(15, HIGH);
   delay(500);

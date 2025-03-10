@@ -3,7 +3,6 @@
 #include "SX12xxDriverCommon.h"
 #include <targets.h>
 #include "logging.h"
-#define PLATFORM_ESP32
 
 class RFAMP_hal
 {

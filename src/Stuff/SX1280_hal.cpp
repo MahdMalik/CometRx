@@ -22,8 +22,6 @@ Modified and adapted by Alessandro Carcione for ELRS project
 #include <SPIEx.h>
 #include "logging.h"
 
-#define PLATFORM_ESP32
-
 SX1280Hal *SX1280Hal::instance = NULL;
 
 SX1280Hal::SX1280Hal()

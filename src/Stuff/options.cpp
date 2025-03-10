@@ -1,7 +1,6 @@
 #include "targets.h"
 #include "options.h"
 #include "logging.h"
-#define PLATFORM_ESP32
 
 
 #define QUOTE(arg) #arg

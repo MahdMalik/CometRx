@@ -89,7 +89,7 @@ bool SX1280Driver::Begin(uint32_t minimumFrequency, uint32_t maximumFrequency)
     hal.WriteRegister(0xFF00, 32, SX12XX_Radio_1);
     uint16_t testRead = hal.ReadRegister(0xFF00, SX12XX_Radio_1);
     char* thingToPrint = (char*) malloc(strlen("Read vers sx1280 #1: ") * sizeof(char) + sizeof(uint16_t));
-    sprintf(thingToPrint, "Test read: %d", testRead);
+    sprintf(thingToPrint, "Test read that should be 32: %d", testRead);
     Serial.println(thingToPrint);
     free(thingToPrint);
 
