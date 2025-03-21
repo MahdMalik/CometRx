@@ -7,7 +7,7 @@
 
 /// General Features ///
 #define LED_MAX_BRIGHTNESS 50 //0..255 for max led brightness
-
+#define PLATFORM_ESP32
 /////////////////////////
 
 #define WORD_ALIGNED_ATTR __attribute__((aligned(4)))

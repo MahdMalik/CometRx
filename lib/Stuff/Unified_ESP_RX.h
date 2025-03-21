@@ -82,6 +82,7 @@
 #define ANALOG_VBAT_OFFSET hardware_int(HARDWARE_vbat_offset)
 #define ANALOG_VBAT_SCALE hardware_int(HARDWARE_vbat_scale)
 
+#define PLATFORM_ESP32
 #if defined(PLATFORM_ESP32)
 // VTX
 #define OPT_HAS_VTX_SPI (hardware_pin(HARDWARE_vtx_nss) != UNDEF_PIN)

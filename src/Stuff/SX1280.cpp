@@ -86,10 +86,10 @@ bool SX1280Driver::Begin(uint32_t minimumFrequency, uint32_t maximumFrequency)
 
     SetMode(SX1280_MODE_STDBY_RC, SX12XX_Radio_All); // Put in STDBY_RC mode.  Must be SX1280_MODE_STDBY_RC for SX1280_RADIO_SET_REGULATORMODE to be set.
 
-    hal.WriteRegister(0xFF00, 32, SX12XX_Radio_1);
+    hal.WriteRegister(0xFF00, 5, SX12XX_Radio_1);
     uint16_t testRead = hal.ReadRegister(0xFF00, SX12XX_Radio_1);
-    char* thingToPrint = (char*) malloc(strlen("Read vers sx1280 #1: ") * sizeof(char) + sizeof(uint16_t));
-    sprintf(thingToPrint, "Test read that should be 32: %d", testRead);
+    char* thingToPrint = (char*) malloc(strlen("Test read that should be 5: ") * sizeof(char) + sizeof(uint16_t));
+    sprintf(thingToPrint, "Test read that should be 5: %d", testRead);
     Serial.println(thingToPrint);
     free(thingToPrint);
 
@@ -103,6 +103,7 @@ bool SX1280Driver::Begin(uint32_t minimumFrequency, uint32_t maximumFrequency)
     {
         // SPI communication failed, just return without configuration
         Serial.println("SPI communciation failed!");
+        hal.end();
         return false;
     }
 

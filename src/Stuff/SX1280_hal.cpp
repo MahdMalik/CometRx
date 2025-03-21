@@ -22,6 +22,7 @@ Modified and adapted by Alessandro Carcione for ELRS project
 #include <SPIEx.h>
 #include "logging.h"
 
+
 SX1280Hal *SX1280Hal::instance = NULL;
 
 SX1280Hal::SX1280Hal()
@@ -64,7 +65,14 @@ void SX1280Hal::init()
     digitalWrite(GPIO_PIN_NSS, HIGH);
 
 #ifdef PLATFORM_ESP32
-    SPIEx.begin(GPIO_PIN_SCK, GPIO_PIN_MISO, GPIO_PIN_MOSI, GPIO_PIN_NSS); // sck, miso, mosi, ss (ss can be any GPIO)
+    Serial.println("Initializing stuff!");
+    
+    char* thingToPrint = (char*) malloc(strlen("What's passed in FROM HAL - Sck:  , miso:  , mosi:  , ss:  .") * sizeof(char) + 4 * sizeof(int) + 10);
+    sprintf(thingToPrint, "What's passed in FROM HAL - Sck: %d, miso: %d, mosi: %d, ss: %d.", GPIO_PIN_SCK, GPIO_PIN_MISO, GPIO_PIN_MOSI, GPIO_PIN_NSS);
+    Serial.println(thingToPrint);
+    free(thingToPrint);
+
+    SPIEx.begin(-1, -1, -1, -1); // sck, miso, mosi, ss (ss can be any GPIO)
     gpio_pullup_en((gpio_num_t)GPIO_PIN_MISO);
     SPIEx.setFrequency(17500000);
     SPIEx.setHwCs(true);
@@ -196,6 +204,13 @@ void ICACHE_RAM_ATTR SX1280Hal::ReadRegister(uint16_t address, uint8_t *buffer, 
     WaitOnBusy(radioNumber);
 
     SPIEx.read(radioNumber, OutBuffer, size + 4);
+
+    // char* thingToPrint = (char*) malloc(strlen("This is a buffer read register thingy: \0") * sizeof(char) + sizeof(int) + 20);
+    // int num = (int) OutBuffer[1];
+    // sprintf(thingToPrint, "This is a buffer read register thingy: %d", num);
+    // Serial.println(thingToPrint);
+    // free(thingToPrint);
+
     memcpy(buffer, OutBuffer + 4, size);
 }
 

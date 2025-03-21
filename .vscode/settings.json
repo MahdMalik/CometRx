@@ -51,7 +51,14 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "io_mux_reg.h": "c",
+        "spi_struct.h": "c",
+        "gpio.h": "c",
+        "esp_intr_alloc.h": "c",
+        "esp32-hal-spi.h": "c",
+        "stdbool.h": "c",
+        "stdint.h": "c"
     },
     "idf.portWin": "COM6",
     "idf.customExtraVars": {

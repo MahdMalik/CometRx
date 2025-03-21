@@ -1,5 +1,5 @@
 #pragma once
-
+#define PLATFORM_ESP32
 #include "SX12xxDriverCommon.h"
 #include <targets.h>
 #include "logging.h"

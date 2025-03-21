@@ -255,6 +255,11 @@ bool hardware_init(EspFlashStream &strmFlash)
 
 const int hardware_pin(nameType name)
 {
+    // char* thingToPrint = (char*) malloc(strlen("Here's the index: ") * sizeof(char) + sizeof(int) + 10);
+    // sprintf(thingToPrint, "Here's the value: %d", (int) name);
+    // Serial.println(thingToPrint);
+    // free(thingToPrint);
+    
     return hardware[name].int_value;
 }
 

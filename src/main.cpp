@@ -54,9 +54,8 @@ void loop()
 {  
   Serial.println("RX: Beginning to receive data:");
   digitalWrite(15, HIGH);
-  delay(500);
   theDriver->Begin(Sx1280Freq - 100, Sx1280Freq + 100);
   Serial.println("RX: Done receiving");
   digitalWrite(15, LOW);
-  delay(500);
+  delay(3000);
 }

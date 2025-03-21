@@ -1,6 +1,5 @@
 #include "targets.h"
 #include <SPI.h>
-
 /**
  * @brief An extension to the platform SPI class that provides some performance enhancements.
  *
@@ -10,6 +9,8 @@
  *    continue to do work while the SPI module is pumping the data from the FIFO to the external
  *    device.
  */
+
+ #define PLATFORM_ESP32
 class SPIExClass : public SPIClass
 {
 public:
