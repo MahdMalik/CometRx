@@ -3,7 +3,6 @@
 #if defined(PLATFORM_ESP32)
 #include <soc/spi_struct.h>
 #endif
-#include <logging.h>
 
 void ICACHE_RAM_ATTR SPIExClass::_transfer(uint8_t cs_mask, uint8_t *data, uint32_t size, bool reading)
 {
@@ -46,7 +45,6 @@ void ICACHE_RAM_ATTR SPIExClass::_transfer(uint8_t cs_mask, uint8_t *data, uint3
         for(int i=0; i<words; i++)
         {
             wordsBuf[i] = spi->data_buf[i]; //copy spi fifo to buffer
-            DBGLN("Word buffer currenet value is %d", wordsBuf[i]);
         }
     }
 #elif defined(PLATFORM_ESP8266)

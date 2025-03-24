@@ -109,7 +109,7 @@ bool SX1280Driver::Begin(uint32_t minimumFrequency, uint32_t maximumFrequency)
         if ((firmwareRev == 0) || (firmwareRev == 65535))
         {
             // SPI communication failed, just return without configuration
-            DBGLN("SPI com failed as for 2nd radio, firmwareRev is 0 or 65535.");
+            Serial.println("SPI com failed as for 2nd radio, firmwareRev is 0 or 65535.");
             return false;
         }
 
