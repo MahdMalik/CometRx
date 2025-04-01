@@ -2073,7 +2073,7 @@ void resetConfigAndReboot()
 
 void setup()
 {
-    delay(500);
+    delay(3000);
     #if defined(TARGET_UNIFIED_RX)
     hardwareConfigured = options_init();
     if (!hardwareConfigured)
@@ -2133,9 +2133,9 @@ void setup()
                     DBGLN("Planning to do pwm serial");
                     break;
                 }
-                else
+                else if(pinMode == som10KHzDuty)
                 {
-                    DBGLN("No serial defined!");
+                    DBGLN("Doing duty cycle!");
                 }
             }
         }
@@ -2146,6 +2146,19 @@ void setup()
         #endif
         setupSerial();
         setupSerial1();
+
+        for (int i = 0 ; i < GPIO_PIN_PWM_OUTPUTS_COUNT ; i++)
+        {
+            eServoOutputMode pinMode = (eServoOutputMode)config.GetPwmChannel(i)->val.mode;
+            if(pinMode == som10KHzDuty)
+            {
+                DBGLN("set to use 0-100 duty cycle!");
+            }
+            else
+            {
+                DBGLN("not set to use 0-100 duty cycle");
+            }
+        }
 
         devicesRegister(ui_devices, ARRAY_SIZE(ui_devices));
         devicesInit();
