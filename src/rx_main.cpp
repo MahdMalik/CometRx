@@ -2073,7 +2073,7 @@ void resetConfigAndReboot()
 
 void setup()
 {
-    Serial.println("Begin setup.");
+    delay(500);
     #if defined(TARGET_UNIFIED_RX)
     hardwareConfigured = options_init();
     if (!hardwareConfigured)
@@ -2130,9 +2130,18 @@ void setup()
                 if (pinMode == somSerial)
                 {
                     pwmSerialDefined = true;
+                    DBGLN("Planning to do pwm serial");
                     break;
                 }
+                else
+                {
+                    DBGLN("No serial defined!");
+                }
             }
+        }
+        else
+        {
+            DBGLN("RX or TX pins are defined!");
         }
         #endif
         setupSerial();
@@ -2146,7 +2155,6 @@ void setup()
         FHSSrandomiseFHSSsequence(uidMacSeedGet());
 
         setupRadio();
-
         if (connectionState != radioFailed)
         {
             // RFnoiseFloor = MeasureNoiseFloor(); //TODO move MeasureNoiseFloor to driver libs
@@ -2155,6 +2163,10 @@ void setup()
             MspReceiver.SetDataToReceive(MspData, ELRS_MSP_BUFFER);
             Radio.RXnb();
             hwTimer::init(HWtimerCallbackTick, HWtimerCallbackTock);
+        }
+        else
+        {
+            DBGLN("Reminder that connection state was that radio failed!");
         }
     }
 
