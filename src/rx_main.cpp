@@ -2201,7 +2201,6 @@ void main_loop()
 void loop()
 #endif
 {
-    Serial.println("Begin one loop!");
     unsigned long now = millis();
 
     if (MspReceiver.HasFinishedData())
