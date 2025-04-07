@@ -142,10 +142,10 @@ static void servosUpdate(unsigned long now)
         servosFailsafe();
         lastUpdate = 0;
     }
-    else
-    {
-        DBGLN("womp womp no new channels and no packets or update missed. We expect this, cause no packets are incoming just yet");
-    }
+    // else
+    // {
+    //     DBGLN("womp womp no new channels and no packets or update missed. We expect this, cause no packets are incoming just yet");
+    // }
 }
 
 static void initialize()
