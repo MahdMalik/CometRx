@@ -2137,6 +2137,10 @@ void setup()
                 {
                     DBGLN("Doing duty cycle!");
                 }
+                else if (pinMode == som50Hz)
+                {
+                    DBGLN("Doing 50 hzduty cycle!");
+                }
             }
         }
         else
@@ -2146,7 +2150,6 @@ void setup()
         #endif
         setupSerial();
         setupSerial1();
-
         for (int i = 0 ; i < GPIO_PIN_PWM_OUTPUTS_COUNT ; i++)
         {
             eServoOutputMode pinMode = (eServoOutputMode)config.GetPwmChannel(i)->val.mode;
@@ -2154,9 +2157,9 @@ void setup()
             {
                 DBGLN("set to use 0-100 duty cycle!");
             }
-            else
+            else if(pinMode == som50Hz)
             {
-                DBGLN("not set to use 0-100 duty cycle");
+                DBGLN("instead we doing the 50 hz servo!");
             }
         }
 
@@ -2207,7 +2210,6 @@ void loop()
     {
         MspReceiveComplete();
     }
-
     devicesUpdate(now);
 
     // read and process any data from serial ports, send any queued non-RC data

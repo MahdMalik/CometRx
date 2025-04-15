@@ -51,7 +51,8 @@ uint16_t servoOutputModeToFrequency(eServoOutputMode mode)
 
 static void servoWrite(uint8_t ch, uint16_t us)
 {
-    DBGLN("Rewrite of the life");
+    //ONLY DEBUG CODE
+    PWM.setMicroseconds(pwmChannels[ch], us);
     const rx_config_pwm_t *chConfig = config.GetPwmChannel(ch);
 #if defined(PLATFORM_ESP32)
     if ((eServoOutputMode)chConfig->val.mode == somDShot)
@@ -73,11 +74,11 @@ static void servoWrite(uint8_t ch, uint16_t us)
         }
         else if ((eServoOutputMode)chConfig->val.mode == som10KHzDuty)
         {
-            DBGLN("Setting pwm duty with this one!!!11");
             PWM.setDuty(pwmChannels[ch], constrain(us, 1000, 2000) - 1000);
         }
         else
         {
+            DBGLN("Setting pwm duty with this one!!!11");
             PWM.setMicroseconds(pwmChannels[ch], us / (chConfig->val.narrow + 1));
         }
     }
@@ -107,6 +108,8 @@ static void servosFailsafe()
 
 static void servosUpdate(unsigned long now)
 {
+    //ONLY DEBUG CODE   
+    servoWrite(0, 1500);
     static uint32_t lastUpdate;
     if (newChannelsAvailable)
     {
@@ -218,6 +221,7 @@ static int start()
         auto frequency = servoOutputModeToFrequency((eServoOutputMode)chConfig->val.mode);
         if (frequency && servoPins[ch] != UNDEF_PIN)
         {
+            DBGLN("Allocating space for the PWM!");
             pwmChannels[ch] = PWM.allocate(servoPins[ch], frequency);
         }
 #if defined(PLATFORM_ESP32)

@@ -131,6 +131,9 @@ static int _devicesUpdate(unsigned long now)
     lastConnectionState[coreMulti] = connectionState;
     lastModelMatch[coreMulti] = newModelMatch;
 
+    //ONLY DEBUG CODE
+    int randoDelay = (uiDevices[10].device->timeout)();
+
     for(size_t i=0 ; i<deviceCount ; i++)
     {
         if (uiDevices[i].core == core || core == -1) {
