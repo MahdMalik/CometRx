@@ -19,7 +19,7 @@
 
 #if defined(PLATFORM_ESP32)
 #include <soc/soc_caps.h>
-#define MULTICORE (SOC_CPU_CORES_NUM > 1)
+#define MULTICORE false
 #endif
 
 ///////////////////////////////////////
@@ -55,6 +55,8 @@ void devicesRegister(device_affinity_t *devices, uint8_t count)
         completeSemaphore = xSemaphoreCreateBinary();
         disableCore0WDT();
         xTaskCreatePinnedToCore(deviceTask, "deviceTask", 32768, NULL, 0, &xDeviceTask, 0);
+        printf("We created task on core 1!\n");
+        printf("Current core should be %d!\n", xPortGetCoreID());
     #endif
 }
 
@@ -67,6 +69,11 @@ void devicesInit()
             if (uiDevices[i].device->initialize) {
                 (uiDevices[i].device->initialize)();
             }
+        }
+        else if(uiDevices[i].core != core && core != -1)
+        {
+            printf("HEY WAIT NOT ON CORE 1??? THAT'S CAP BRUH! Instead, device core is %d, while this core is %d!\n", uiDevices[i].core, core);
+
         }
     }
     #if MULTICORE
@@ -131,8 +138,8 @@ static int _devicesUpdate(unsigned long now)
     lastConnectionState[coreMulti] = connectionState;
     lastModelMatch[coreMulti] = newModelMatch;
 
-    //ONLY DEBUG CODE
-    int randoDelay = (uiDevices[10].device->timeout)();
+    // //ONLY DEBUG CODE
+    // int randoDelay = (uiDevices[10].device->timeout)();
 
     for(size_t i=0 ; i<deviceCount ; i++)
     {

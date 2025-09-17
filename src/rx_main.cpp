@@ -84,35 +84,35 @@ device_affinity_t ui_devices[] = {
   {&SerialUpdate_device, 1},
 #endif
 #ifdef HAS_LED
-  {&LED_device, 0},
+  {&LED_device, 1},
 #endif
-  {&LUA_device, 0},
+  {&LUA_device, 1},
 #ifdef HAS_RGB
-  {&RGB_device, 0},
+  {&RGB_device, 1},
 #endif
 #ifdef HAS_WIFI
-  {&WIFI_device, 0},
+  {&WIFI_device, 1},
 #endif
 #ifdef HAS_BUTTON
-  {&Button_device, 0},
+  {&Button_device, 1},
 #endif
 #ifdef HAS_VTX_SPI
-  {&VTxSPI_device, 0},
+  {&VTxSPI_device, 1},
 #endif
 #ifdef USE_ANALOG_VBAT
-  {&AnalogVbat_device, 0},
+  {&AnalogVbat_device, 1},
 #endif
 #ifdef HAS_SERVO_OUTPUT
   {&ServoOut_device, 1},
 #endif
 #ifdef HAS_BARO
-  {&Baro_device, 0}, // must come after AnalogVbat_device to slow updates
+  {&Baro_device, 1}, // must come after AnalogVbat_device to slow updates
 #endif
 #ifdef HAS_MSP_VTX
-  {&MSPVTx_device, 0}, // dependency on VTxSPI_device
+  {&MSPVTx_device, 1}, // dependency on VTxSPI_device
 #endif
 #if defined(HAS_THERMAL) || defined(HAS_FAN)
-  {&Thermal_device, 0},
+  {&Thermal_device, 1},
 #endif
 };
 
@@ -2078,6 +2078,7 @@ void setup()
     hardwareConfigured = options_init();
     if (!hardwareConfigured)
     {
+        printf("NO HARDWARE CONFIG!\n");
         // In the failure case we set the logging to the null logger so nothing crashes
         // if it decides to log something
         SerialLogger = new NullStream();
@@ -2097,6 +2098,7 @@ void setup()
 
     if (hardwareConfigured)
     {
+        printf("THE HARDWARE CONFIG! THE HARDWARE CONFIG IS REAL!!!\n");
         // default to CRSF protocol and the compiled baud rate
         serialBaud = firmwareOptions.uart_baud;
 
@@ -2184,6 +2186,8 @@ void setup()
         {
             DBGLN("Reminder that connection state was that radio failed!");
         }
+
+        printf("Hello world from core %d!\n", xPortGetCoreID() );
     }
 
 #if defined(HAS_BUTTON)
