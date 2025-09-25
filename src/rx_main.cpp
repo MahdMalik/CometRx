@@ -27,6 +27,10 @@
 #include "rx-serial/SerialTramp.h"
 #include "rx-serial/SerialSmartAudio.h"
 
+#include "FreeRTOSConfig.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "rx-serial/devSerialIO.h"
 #include "devLED.h"
 #include "devLUA.h"
@@ -2074,6 +2078,7 @@ void resetConfigAndReboot()
 void setup()
 {
     delay(3000);
+
     #if defined(TARGET_UNIFIED_RX)
     hardwareConfigured = options_init();
     if (!hardwareConfigured)
@@ -2099,6 +2104,14 @@ void setup()
     if (hardwareConfigured)
     {
         printf("THE HARDWARE CONFIG! THE HARDWARE CONFIG IS REAL!!!\n");
+
+        UBaseType_t numTasks = uxTaskGetNumberOfTasks();
+        printf("The number of tasks is: ");
+        char buffer[12]; 
+        sprintf(buffer, "%lu", (unsigned long) numTasks);
+        printf(buffer);
+
+
         // default to CRSF protocol and the compiled baud rate
         serialBaud = firmwareOptions.uart_baud;
 
