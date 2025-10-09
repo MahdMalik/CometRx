@@ -1386,6 +1386,7 @@ static void cyclePower()
 
 void setup()
 {
+  printf("OOh if this prints...\n");
   if (setupHardwareFromOptions())
   {
     setupTarget();

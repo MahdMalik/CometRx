@@ -2075,7 +2075,126 @@ void resetConfigAndReboot()
 #endif
 }
 
-void setup()
+static TaskHandle_t elrsDeviceTask = NULL;
+
+#if defined(PLATFORM_ESP32_C3)
+void main_loop()
+#else
+void elrsLoop(void *pvParameters)
+#endif
+{
+    for(;;)
+    {
+        printf("ELRS: hello world from core %d!\n", xPortGetCoreID());
+        unsigned long now = millis();
+
+        if (MspReceiver.HasFinishedData())
+        {
+            MspReceiveComplete();
+        }
+        devicesUpdate(now);
+
+        // read and process any data from serial ports, send any queued non-RC data
+        handleSerialIO();
+
+    #if defined(PLATFORM_ESP8266) || defined(PLATFORM_ESP32)
+        // If the reboot time is set and the current time is past the reboot time then reboot.
+        if (rebootTime != 0 && now > rebootTime) {
+            ESP.restart();
+        }
+        #endif
+
+        CheckConfigChangePending();
+        executeDeferredFunction(micros());
+
+        // Clear the power-on-count
+        if ((connectionState == connected || connectionState == tentative) && config.GetPowerOnCounter() != 0)
+        {
+            config.SetPowerOnCounter(0);
+        }
+
+        if (connectionState > MODE_STATES)
+        {
+            // must delete the core rather than reeturning
+            vTaskDelete(NULL);
+        }
+
+        if ((connectionState != disconnected) && (ExpressLRS_currAirRate_Modparams->index != ExpressLRS_nextAirRateIndex)) // forced change
+        {
+            DBGLN("Req air rate change %u->%u", ExpressLRS_currAirRate_Modparams->index, ExpressLRS_nextAirRateIndex);
+            if (!isSupportedRFRate(ExpressLRS_nextAirRateIndex))
+            {
+                // DBGLN("Mode %u not supported, ignoring", get_elrs_airRateConfig(index)->interval);
+                ExpressLRS_nextAirRateIndex = ExpressLRS_currAirRate_Modparams->index;
+            }
+            LostConnection(true);
+            LastSyncPacket = now;           // reset this variable to stop rf mode switching and add extra time
+            RFmodeLastCycled = now;         // reset this variable to stop rf mode switching and add extra time
+            SendLinkStatstoFCintervalLastSent = 0;
+            SendLinkStatstoFCForcedSends = 2;
+        }
+
+        if (connectionState == tentative && (now - LastSyncPacket > ExpressLRS_currAirRate_RFperfParams->RxLockTimeoutMs))
+        {
+            DBGLN("Bad sync, aborting");
+            LostConnection(true);
+            RFmodeLastCycled = now;
+            LastSyncPacket = now;
+        }
+
+        cycleRfMode(now);
+
+        uint32_t localLastValidPacket = LastValidPacket; // Required to prevent race condition due to LastValidPacket getting updated from ISR
+        if ((connectionState == connected) && ((int32_t)ExpressLRS_currAirRate_RFperfParams->DisconnectTimeoutMs < (int32_t)(now - localLastValidPacket))) // check if we lost conn.
+        {
+            LostConnection(true);
+        }
+
+        if ((connectionState == tentative) && (abs(LPF_OffsetDx.value()) <= 10) && (LPF_Offset.value() < 100) && (LQCalc.getLQRaw() > minLqForChaos())) //detects when we are connected
+        {
+            GotConnection(now);
+        }
+
+        checkSendLinkStatsToFc(now);
+
+        if ((RXtimerState == tim_tentative) && ((now - GotConnectionMillis) > ConsiderConnGoodMillis) && (abs(LPF_OffsetDx.value()) <= 5))
+        {
+            RXtimerState = tim_locked;
+            DBGLN("Timer locked");
+        }
+
+        uint8_t *nextPayload = 0;
+        uint8_t nextPlayloadSize = 0;
+        if (!TelemetrySender.IsActive() && telemetry.GetNextPayload(&nextPlayloadSize, &nextPayload))
+        {
+            TelemetrySender.SetDataToTransmit(nextPayload, nextPlayloadSize);
+        }
+
+        uint16_t count = mavlinkInputBuffer.size();
+        if (count > 0 && !TelemetrySender.IsActive())
+        {
+            count = std::min(count, (uint16_t)CRSF_PAYLOAD_SIZE_MAX); // Constrain to CRSF max payload size to match SS
+            // First 2 bytes conform to crsf_header_s format
+            mavlinkSSBuffer[0] = CRSF_ADDRESS_USB; // device_addr - used on TX to differentiate between std tlm and mavlink
+            mavlinkSSBuffer[1] = count;
+            // Following n bytes are just raw mavlink
+            mavlinkInputBuffer.popBytes(mavlinkSSBuffer + CRSF_FRAME_NOT_COUNTED_BYTES, count);
+            nextPayload = mavlinkSSBuffer;
+            nextPlayloadSize = count + CRSF_FRAME_NOT_COUNTED_BYTES;
+            TelemetrySender.SetDataToTransmit(nextPayload, nextPlayloadSize);
+        }
+
+        updateTelemetryBurst();
+        updateBindingMode(now);
+        updateSwitchMode();
+        checkGeminiMode();
+        DynamicPower_UpdateRx(false);
+        debugRcvrLinkstats();
+        debugRcvrSignalStats(now);
+    }
+}
+
+void elrsSetup(void *pvParameters)
 {
     delay(3000);
 
@@ -2110,6 +2229,7 @@ void setup()
         char buffer[12]; 
         sprintf(buffer, "%lu", (unsigned long) numTasks);
         printf(buffer);
+        printf("\n");
 
 
         // default to CRSF protocol and the compiled baud rate
@@ -2213,118 +2333,10 @@ void setup()
     // setup() eats up some of this time, which can cause the first mode connection to fail.
     // Resetting the time here give the first mode a better chance of connection.
     RFmodeLastCycled = millis();
-}
 
-#if defined(PLATFORM_ESP32_C3)
-void main_loop()
-#else
-void loop()
-#endif
-{
-    unsigned long now = millis();
+    xTaskCreatePinnedToCore(elrsLoop, "elrsLoopTask", 32768, NULL, 5, &elrsDeviceTask, 0);
+    vTaskDelete(NULL);
 
-    if (MspReceiver.HasFinishedData())
-    {
-        MspReceiveComplete();
-    }
-    devicesUpdate(now);
-
-    // read and process any data from serial ports, send any queued non-RC data
-    handleSerialIO();
-
-#if defined(PLATFORM_ESP8266) || defined(PLATFORM_ESP32)
-    // If the reboot time is set and the current time is past the reboot time then reboot.
-    if (rebootTime != 0 && now > rebootTime) {
-        ESP.restart();
-    }
-    #endif
-
-    CheckConfigChangePending();
-    executeDeferredFunction(micros());
-
-    // Clear the power-on-count
-    if ((connectionState == connected || connectionState == tentative) && config.GetPowerOnCounter() != 0)
-    {
-        config.SetPowerOnCounter(0);
-    }
-
-    if (connectionState > MODE_STATES)
-    {
-        return;
-    }
-
-    if ((connectionState != disconnected) && (ExpressLRS_currAirRate_Modparams->index != ExpressLRS_nextAirRateIndex)) // forced change
-    {
-        DBGLN("Req air rate change %u->%u", ExpressLRS_currAirRate_Modparams->index, ExpressLRS_nextAirRateIndex);
-        if (!isSupportedRFRate(ExpressLRS_nextAirRateIndex))
-        {
-            // DBGLN("Mode %u not supported, ignoring", get_elrs_airRateConfig(index)->interval);
-            ExpressLRS_nextAirRateIndex = ExpressLRS_currAirRate_Modparams->index;
-        }
-        LostConnection(true);
-        LastSyncPacket = now;           // reset this variable to stop rf mode switching and add extra time
-        RFmodeLastCycled = now;         // reset this variable to stop rf mode switching and add extra time
-        SendLinkStatstoFCintervalLastSent = 0;
-        SendLinkStatstoFCForcedSends = 2;
-    }
-
-    if (connectionState == tentative && (now - LastSyncPacket > ExpressLRS_currAirRate_RFperfParams->RxLockTimeoutMs))
-    {
-        DBGLN("Bad sync, aborting");
-        LostConnection(true);
-        RFmodeLastCycled = now;
-        LastSyncPacket = now;
-    }
-
-    cycleRfMode(now);
-
-    uint32_t localLastValidPacket = LastValidPacket; // Required to prevent race condition due to LastValidPacket getting updated from ISR
-    if ((connectionState == connected) && ((int32_t)ExpressLRS_currAirRate_RFperfParams->DisconnectTimeoutMs < (int32_t)(now - localLastValidPacket))) // check if we lost conn.
-    {
-        LostConnection(true);
-    }
-
-    if ((connectionState == tentative) && (abs(LPF_OffsetDx.value()) <= 10) && (LPF_Offset.value() < 100) && (LQCalc.getLQRaw() > minLqForChaos())) //detects when we are connected
-    {
-        GotConnection(now);
-    }
-
-    checkSendLinkStatsToFc(now);
-
-    if ((RXtimerState == tim_tentative) && ((now - GotConnectionMillis) > ConsiderConnGoodMillis) && (abs(LPF_OffsetDx.value()) <= 5))
-    {
-        RXtimerState = tim_locked;
-        DBGLN("Timer locked");
-    }
-
-    uint8_t *nextPayload = 0;
-    uint8_t nextPlayloadSize = 0;
-    if (!TelemetrySender.IsActive() && telemetry.GetNextPayload(&nextPlayloadSize, &nextPayload))
-    {
-        TelemetrySender.SetDataToTransmit(nextPayload, nextPlayloadSize);
-    }
-
-    uint16_t count = mavlinkInputBuffer.size();
-    if (count > 0 && !TelemetrySender.IsActive())
-    {
-        count = std::min(count, (uint16_t)CRSF_PAYLOAD_SIZE_MAX); // Constrain to CRSF max payload size to match SS
-        // First 2 bytes conform to crsf_header_s format
-        mavlinkSSBuffer[0] = CRSF_ADDRESS_USB; // device_addr - used on TX to differentiate between std tlm and mavlink
-        mavlinkSSBuffer[1] = count;
-        // Following n bytes are just raw mavlink
-        mavlinkInputBuffer.popBytes(mavlinkSSBuffer + CRSF_FRAME_NOT_COUNTED_BYTES, count);
-        nextPayload = mavlinkSSBuffer;
-        nextPlayloadSize = count + CRSF_FRAME_NOT_COUNTED_BYTES;
-        TelemetrySender.SetDataToTransmit(nextPayload, nextPlayloadSize);
-    }
-
-    updateTelemetryBurst();
-    updateBindingMode(now);
-    updateSwitchMode();
-    checkGeminiMode();
-    DynamicPower_UpdateRx(false);
-    debugRcvrLinkstats();
-    debugRcvrSignalStats(now);
 }
 
 #if defined(PLATFORM_ESP32_C3)
@@ -2375,4 +2387,14 @@ void reset_into_bootloader(void)
     delay(100);
     connectionState = serialUpdate;
 #endif
+}
+
+void setup()
+{
+    xTaskCreatePinnedToCore(elrsSetup, "elrsTask", 32768, NULL, 5, &elrsDeviceTask, 0);
+}
+
+void loop()
+{
+    // printf("Main: world from core %d!\n", xPortGetCoreID() );
 }
