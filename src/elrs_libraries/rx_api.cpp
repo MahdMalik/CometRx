@@ -2047,7 +2047,7 @@ void elrsLoop(void *pvParameters)
     
     for(;;)
     {
-        printf("ELRS: hello world from core %d!\n", xPortGetCoreID());
+        // printf("ELRS: hello world from core %d!\n", xPortGetCoreID());
         unsigned long now = millis();
 
         if (MspReceiver.HasFinishedData())
@@ -2077,8 +2077,11 @@ void elrsLoop(void *pvParameters)
 
         if (connectionState > MODE_STATES)
         {
+            // dont' want to actually delete the task; just keep running so we can at least enter wifi
+            vTaskDelay(1);  
+            continue;
             // must delete the core rather than reeturning
-            vTaskDelete(NULL);
+            // vTaskDelete(NULL);
         }
 
         if ((connectionState != disconnected) && (ExpressLRS_currAirRate_Modparams->index != ExpressLRS_nextAirRateIndex)) // forced change
