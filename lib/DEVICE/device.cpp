@@ -72,7 +72,7 @@ void devicesInit()
         }
         else if(uiDevices[i].core != core && core != -1)
         {
-            printf("HEY WAIT NOT ON CORE 1??? THAT'S CAP BRUH! Instead, device core is %d, while this core is %d!\n", uiDevices[i].core, core);
+            printf("HEY WAIT NOT ON CORE 0??? THAT'S CAP BRUH! Instead, device core is %d, while this core is %d!\n", uiDevices[i].core, core);
 
         }
     }

@@ -734,6 +734,7 @@ void ICACHE_RAM_ATTR SX1280Driver::IsrCallback_2()
     instance->IsrCallback(SX12XX_Radio_2);
 }
 
+// THIS IS THE BIG BOI FUNCTION CALLED WHEN WE RECEIVE SOMETHING (or for another reason the pin for an interrupt goes high)
 void ICACHE_RAM_ATTR SX1280Driver::IsrCallback(SX12XX_Radio_Number_t radioNumber)
 {
     instance->processingPacketRadio = radioNumber;

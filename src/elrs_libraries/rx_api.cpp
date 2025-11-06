@@ -66,43 +66,43 @@
 ///////////////////
 
 device_affinity_t ui_devices[] = {
-  {&Serial0_device, 1},
+  {&Serial0_device, 0},
 #if defined(PLATFORM_ESP32)
-  {&Serial1_device, 1},
+  {&Serial1_device, 0},
 #endif
 #if defined(PLATFORM_ESP32)
-  {&SerialUpdate_device, 1},
+  {&SerialUpdate_device, 0},
 #endif
 #ifdef HAS_LED
-  {&LED_device, 1},
+  {&LED_device, 0},
 #endif
-  {&LUA_device, 1},
+  {&LUA_device, 0},
 #ifdef HAS_RGB
-  {&RGB_device, 1},
+  {&RGB_device, 0},
 #endif
 #ifdef HAS_WIFI
-  {&WIFI_device, 1},
+  {&WIFI_device, 0},
 #endif
 #ifdef HAS_BUTTON
-  {&Button_device, 1},
+  {&Button_device, 0},
 #endif
 #ifdef HAS_VTX_SPI
-  {&VTxSPI_device, 1},
+  {&VTxSPI_device, 0},
 #endif
 #ifdef USE_ANALOG_VBAT
-  {&AnalogVbat_device, 1},
+  {&AnalogVbat_device, 0},
 #endif
 #ifdef HAS_SERVO_OUTPUT
-  {&ServoOut_device, 1},
+  {&ServoOut_device, 0},
 #endif
 #ifdef HAS_BARO
-  {&Baro_device, 1}, // must come after AnalogVbat_device to slow updates
+  {&Baro_device, 0}, // must come after AnalogVbat_device to slow updates
 #endif
 #ifdef HAS_MSP_VTX
-  {&MSPVTx_device, 1}, // dependency on VTxSPI_device
+  {&MSPVTx_device, 0}, // dependency on VTxSPI_device
 #endif
 #if defined(HAS_THERMAL) || defined(HAS_FAN)
-  {&Thermal_device, 1},
+  {&Thermal_device, 0},
 #endif
 };
 
@@ -1104,6 +1104,7 @@ static bool ICACHE_RAM_ATTR ProcessRfPacket_SYNC(uint32_t const now, OTA_Sync_s 
     return false;
 }
 
+// FUNCTION TO LOOK AT
 bool ICACHE_RAM_ATTR ProcessRFPacket(SX12xxDriverCommon::rx_status const status)
 {
     if (status != SX12xxDriverCommon::SX12XX_RX_OK)
@@ -1116,6 +1117,7 @@ bool ICACHE_RAM_ATTR ProcessRFPacket(SX12xxDriverCommon::rx_status const status)
     }
     uint32_t const beginProcessing = micros();
 
+    // receive data
     OTA_Packet_s * const otaPktPtr = (OTA_Packet_s * const)Radio.RXdataBuffer;
     if (!OtaValidatePacketCrc(otaPktPtr))
     {
@@ -2054,6 +2056,7 @@ void elrsLoop(void *pvParameters)
         {
             MspReceiveComplete();
         }
+        // WHERE THE MAGIC HAPPENS
         devicesUpdate(now);
 
         // read and process any data from serial ports, send any queued non-RC data
