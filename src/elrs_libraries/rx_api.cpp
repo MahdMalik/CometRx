@@ -916,6 +916,8 @@ void GotConnection(unsigned long now)
     DBGLN("got conn");
 }
 
+paramStruct *theParameters;
+
 static void ICACHE_RAM_ATTR ProcessRfPacket_RC(OTA_Packet_s const * const otaPktPtr)
 {
     // Must be fully connected to process RC packets, prevents processing RC
@@ -932,6 +934,12 @@ static void ICACHE_RAM_ATTR ProcessRfPacket_RC(OTA_Packet_s const * const otaPkt
         if (ExpressLRS_currAirRate_Modparams->numOfSends == 1)
         {
             crsfRCFrameAvailable();
+
+            if(theParameters->isSmoothing)
+            {
+                theParameters->smoothFunction(ChannelData)
+            }
+
             // teamrace is only checked for servos because the teamrace model select logic only runs
             // when new frames are available, and will decide later if the frame will be forwarded
             if (teamraceHasModelMatch)
@@ -2056,6 +2064,7 @@ void elrsLoop(void *pvParameters)
         {
             MspReceiveComplete();
         }
+
         // WHERE THE MAGIC HAPPENS
         devicesUpdate(now);
 
@@ -2164,6 +2173,7 @@ void elrsLoop(void *pvParameters)
 
 void elrsSetup(void *pvParameters)
 {
+    theParameters = reinterpret_cast<paramStruct*>(pvParameters);
     static TaskHandle_t *elrsDeviceTask = (TaskHandle_t*) pvParameters;
     
     #if defined(TARGET_UNIFIED_RX)

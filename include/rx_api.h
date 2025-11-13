@@ -92,6 +92,13 @@ void ICACHE_RAM_ATTR TentativeConnection(unsigned long now);
 
 void GotConnection(unsigned long now);
 
+typedef struct {
+    bool isSmoothing;
+    std::function<void(uint32_t*)> smoothFunction;
+    bool isDiffOutputting;
+    std::function<void()> outputFunction;
+} paramStruct;
+
 static void ICACHE_RAM_ATTR ProcessRfPacket_RC(OTA_Packet_s const * const otaPktPtr);
 
 void ICACHE_RAM_ATTR OnELRSBindMSP(uint8_t* newUid4);
