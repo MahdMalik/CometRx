@@ -937,7 +937,7 @@ static void ICACHE_RAM_ATTR ProcessRfPacket_RC(OTA_Packet_s const * const otaPkt
 
             if(theParameters->isSmoothing)
             {
-                theParameters->smoothFunction(ChannelData)
+                theParameters->smoothFunction(ChannelData);
             }
 
             // teamrace is only checked for servos because the teamrace model select logic only runs
