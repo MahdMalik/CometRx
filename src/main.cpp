@@ -2,8 +2,20 @@
 #include <Arduino.h>
 #include "rx_api.h"
 
-
 static TaskHandle_t elrsDeviceTask = NULL;
+
+// this is the channel data you'll be modifying
+void cleanBits(uint32_t *ChannelData)
+{
+    // the chanenl has 16 bits. Anyways go crazy, transform those bits however youd like.
+}
+// this is the channel data you'll be modifying
+void performSpecialOutput()
+{
+    
+}
+
+
 
 void setupELRS(bool isSmoothing, bool isSpecialOutput)
 {
@@ -31,14 +43,3 @@ void loop()
 {
     // printf("Main: world from core %d!\n", xPortGetCoreID() );
 }
-
-// this is the channel data you'll be modifying
-void cleanBits(uint32_t *ChannelData)
-{
-    // the chanenl has 16 bits. Anyways go crazy, transform those bits however youd like.
-}
-// this is the channel data you'll be modifying
-void performSpecialOutput()
-{
-}
-
